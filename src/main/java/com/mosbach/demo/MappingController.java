@@ -27,12 +27,12 @@ import java.util.logging.Logger;
 public class MappingController {
 
     TaskManager taskManager =
-            PropertyFileTaskManagerImpl.getPropertyFileTaskManagerImpl("src/main/resources/tasks.properties");
-            // PostgresTaskManagerImpl.getPostgresTaskManagerImpl();
+            // PropertyFileTaskManagerImpl.getPropertyFileTaskManagerImpl("src/main/resources/tasks.properties");
+            PostgresTaskManagerImpl.getPostgresTaskManagerImpl();
 
     UserManager userManager =
-            PropertyFileUserManagerImpl.getPropertyFileUserManagerImpl("src/main/resources/users.properties");
-            // PostgresUserManagerImpl.getPostgresUserManagerImpl();
+            // PropertyFileUserManagerImpl.getPropertyFileUserManagerImpl("src/main/resources/users.properties");
+            PostgresUserManagerImpl.getPostgresUserManagerImpl();
 
     @PostMapping(
             path = "/login",
@@ -42,7 +42,7 @@ public class MappingController {
     public TokenAnswer loginUser(@RequestBody User user) {
 
         Logger myLogger = Logger.getLogger("UserLoggingOn");
-        myLogger.info("Received a POST request on login with email " + user.getEmail()); //wichtig fuer debuggen
+        myLogger.info("Received a POST request on login with email " + user.getEmail());
 
         String token = userManager.logUserOn(user.getEmail(), user.getPassword());
         myLogger.info("Token generated " + token);
@@ -51,7 +51,7 @@ public class MappingController {
         // Fehlerfall behandeln
 
         return
-                new TokenAnswer(token,"200"); //token und valid time min 
+                new TokenAnswer(token,"200");
     }
 
 
