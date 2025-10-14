@@ -1,4 +1,42 @@
 package com.carpool.demo.controller;
+import com.carpool.demo.data.api.UserManager;
+import com.carpool.demo.data.impl.PropertyFileUserManagerImpl;
+import com.carpool.demo.model.user.User;
+import org.springframework.web.bind.annotation.*;
 
+@RestController
 public class MappingController {
+
+    @GetMapping("/test")
+    public String testEndpoint() {
+        return "Backend läuft korrekt!";
+    }
+
+    private final UserManager userManager = new PropertyFileUserManagerImpl();
+
+    @PostMapping("/register")
+    public String register(@RequestParam String email, @RequestParam String password) {
+        boolean success = userManager.registerUser(email, password);
+        if (!success) return "Fehler: E-Mail existiert bereits!";
+        return "Registrierung erfolgreich!";
+    }
+
+    @PostMapping("/login")
+    public String login(@RequestParam String email, @RequestParam String password) {
+        User user = userManager.login(email, password);
+        if (user == null) return "Login fehlgeschlagen!";
+        return "Login erfolgreich! Token: " + user.getToken();
+    }
+
+    @PostMapping("/logout")
+    public String logout(@RequestParam String email) {
+        boolean success = userManager.logout(email);
+        return success ? "Logout erfolgreich!" : "Logout fehlgeschlagen!";
+    }
+    @GetMapping("/")
+    public String root() {
+        return "Willkommen bei der Carpool API!";
+    }
 }
+
+
