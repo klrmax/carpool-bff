@@ -3,7 +3,7 @@ import com.carpool.demo.model.user.User;
 
 
 public interface UserManager {
-    boolean registerUser(String email, String password);
+    boolean registerUser(String email, String password,  String name, String mobileNumber);
     User login(String email, String password);
     boolean logout(String email);
     boolean emailExists(String email);

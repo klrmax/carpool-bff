@@ -3,6 +3,7 @@ package com.carpool.demo.data.impl;
 import com.carpool.demo.data.api.UserManager;
 import com.carpool.demo.model.user.User;
 import com.carpool.demo.utils.TokenUtils;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
@@ -11,35 +12,63 @@ import java.util.*;
 
 public class PropertyFileUserManagerImpl implements UserManager{
 
-    private final File userFile = new File("src/main/resources/users.json");
+    private final String userFile = "src/main/resources-carpool/users.json";
     private final ObjectMapper mapper = new ObjectMapper();
     private Map<String, User> users = new HashMap<>();
 
     public PropertyFileUserManagerImpl() {
+       loadUsersfromFile();
+    }
+
+    private void loadUsersfromFile() {
         try {
-            if (userFile.exists()) {
-                User[] loadedUsers = mapper.readValue(userFile, User[].class);
-                for (User u : loadedUsers) users.put(u.getEmail(), u);
+            File file = new File(userFile);
+            if (file.exists() && file.length() > 0) {
+                List<User> userList = mapper.readValue(file, new TypeReference<>() {});
+                for (User u : userList) {
+                    if (u.getEmail() != null) {
+                        users.put(u.getEmail(), u);
+                    }
+                }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Fehler beim Laden der Benutzerdatei: " + e.getMessage());
         }
     }
-    private void saveUsers() {
+    private void saveUsersToFile(){
         try {
-            mapper.writerWithDefaultPrettyPrinter().writeValue(userFile, users.values());
+            mapper.writerWithDefaultPrettyPrinter().writeValue(
+                    new File(userFile),
+                    users.values()
+            );
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Fehler beim Speichern der Benutzerdatei: " + e.getMessage());
         }
     }
+    public User findUserByEmail(String email) {
+        return users.get(email);
+    }
+
     @Override
-    public boolean registerUser(String email, String password) {
-        if (users.containsKey(email)) return false;
+    public boolean registerUser(String email, String password, String name, String mobileNumber) {
+        if (users.containsKey(email)) {
+            System.err.println("User existiert bereits!");
+            return false;
+        }
+
         User user = new User();
+        user.setEmail(email);
+        user.setPassword(password);
+        user.setName(name);
+        user.setMobileNumber(mobileNumber);
+
         users.put(email, user);
-        saveUsers();
+        saveUsersToFile();
+
+        System.out.println("User wurde erfolgreich registriert !");
         return true;
     }
+
     @Override
     public User login(String email, String password) {
         User user = users.get(email);
@@ -47,7 +76,7 @@ public class PropertyFileUserManagerImpl implements UserManager{
             String token = TokenUtils.generateToken();
             user.setToken(token);
             user.setTokenExpiration(System.currentTimeMillis() + (60 * 60 * 1000)); // 1h gültig
-            saveUsers();
+            saveUsersToFile();
             return user;
         }
         return null;
@@ -57,7 +86,7 @@ public class PropertyFileUserManagerImpl implements UserManager{
         User user = users.get(email);
         if (user != null) {
             user.setToken(null);
-            saveUsers();
+            saveUsersToFile();
             return true;
         }
         return false;

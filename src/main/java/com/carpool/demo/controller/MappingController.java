@@ -2,7 +2,10 @@ package com.carpool.demo.controller;
 import com.carpool.demo.data.api.UserManager;
 import com.carpool.demo.data.impl.PropertyFileUserManagerImpl;
 import com.carpool.demo.model.user.User;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 public class MappingController {
@@ -15,10 +18,22 @@ public class MappingController {
     private final UserManager userManager = new PropertyFileUserManagerImpl();
 
     @PostMapping("/register")
-    public String register(@RequestParam String email, @RequestParam String password) {
-        boolean success = userManager.registerUser(email, password);
-        if (!success) return "Fehler: E-Mail existiert bereits!";
-        return "Registrierung erfolgreich!";
+    public ResponseEntity<Map<String, String>> register(@RequestBody User user) {
+        boolean success = userManager.registerUser(
+                user.getEmail(),
+                user.getPassword(),
+                user.getName(),
+                user.getMobileNumber()
+        );
+
+        if (!success) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("message", "E-Mail existiert bereits!"));
+        }
+
+        return ResponseEntity
+                .ok(Map.of("message", "Registrierung erfolgreich!"));
     }
 
     @PostMapping("/login")
