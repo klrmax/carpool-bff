@@ -1,11 +1,14 @@
 package com.carpool.demo.data.api;
+
 import com.carpool.demo.model.user.User;
+import java.util.List;
+
 
 
 public interface UserManager {
-    boolean registerUser(String mobileNumber, String password, String name);
-    User login(String mobileNumber, String password);
-    boolean logout(String email);
-    boolean numberExists(String mobileNumber);
-    boolean isTokenValid(String token);
+    User registerUser(User user);
+    User loginUser(String mobileNumber, String password);
+    List<User> getAllUsers();
+    User getUserById(Integer id);
+    void deleteUser(Integer id);
 }

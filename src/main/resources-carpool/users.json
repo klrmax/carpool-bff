@@ -1,5 +1,17 @@
 [ {
   "name" : "Max Mustermann",
+  "mobileNumber" : "03154541 415454",
+  "password" : "12345",
+  "token" : null,
+  "tokenExpiration" : 1760989122779
+}, {
+  "name" : "Max Mustermann",
+  "mobileNumber" : "656565",
+  "password" : "12345",
+  "token" : null,
+  "tokenExpiration" : 0
+}, {
+  "name" : "Max Mustermann",
   "mobileNumber" : "123456",
   "password" : "12345",
   "token" : null,
