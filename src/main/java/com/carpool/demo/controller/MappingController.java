@@ -20,10 +20,10 @@ public class MappingController {
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> register(@RequestBody User user) {
         boolean success = userManager.registerUser(
-                user.getEmail(),
+                user.getMobileNumber(),
                 user.getPassword(),
-                user.getName(),
-                user.getMobileNumber()
+                user.getName()
+
         );
 
         if (!success) {
@@ -37,15 +37,15 @@ public class MappingController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestParam String email, @RequestParam String password) {
-        User user = userManager.login(email, password);
+    public String login(@RequestParam String mobileNumber, @RequestParam String password) {
+        User user = userManager.login(mobileNumber, password);
         if (user == null) return "Login fehlgeschlagen!";
         return "Login erfolgreich! Token: " + user.getToken();
     }
 
     @PostMapping("/logout")
-    public String logout(@RequestParam String email) {
-        boolean success = userManager.logout(email);
+    public String logout(@RequestParam String mobileNumber) {
+        boolean success = userManager.logout(mobileNumber);
         return success ? "Logout erfolgreich!" : "Logout fehlgeschlagen!";
     }
     @GetMapping("/")

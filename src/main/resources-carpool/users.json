@@ -1,0 +1,7 @@
+[ {
+  "name" : "Max Mustermann",
+  "mobileNumber" : "123456",
+  "password" : "12345",
+  "token" : null,
+  "tokenExpiration" : 1760629712553
+} ]

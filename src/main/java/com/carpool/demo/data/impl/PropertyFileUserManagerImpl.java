@@ -26,8 +26,8 @@ public class PropertyFileUserManagerImpl implements UserManager{
             if (file.exists() && file.length() > 0) {
                 List<User> userList = mapper.readValue(file, new TypeReference<>() {});
                 for (User u : userList) {
-                    if (u.getEmail() != null) {
-                        users.put(u.getEmail(), u);
+                    if (u.getMobileNumber() != null) {
+                        users.put(u.getMobileNumber(), u);
                     }
                 }
             }
@@ -50,19 +50,19 @@ public class PropertyFileUserManagerImpl implements UserManager{
     }
 
     @Override
-    public boolean registerUser(String email, String password, String name, String mobileNumber) {
-        if (users.containsKey(email)) {
+    public boolean registerUser(String mobileNumber, String password, String name) {
+        if (users.containsKey(mobileNumber)) {
             System.err.println("User existiert bereits!");
             return false;
         }
 
         User user = new User();
-        user.setEmail(email);
+        user.setMobileNumber(mobileNumber);
         user.setPassword(password);
         user.setName(name);
-        user.setMobileNumber(mobileNumber);
 
-        users.put(email, user);
+
+        users.put(mobileNumber, user);
         saveUsersToFile();
 
         System.out.println("User wurde erfolgreich registriert !");
@@ -70,8 +70,8 @@ public class PropertyFileUserManagerImpl implements UserManager{
     }
 
     @Override
-    public User login(String email, String password) {
-        User user = users.get(email);
+    public User login(String mobileNumber, String password) {
+        User user = users.get(mobileNumber);
         if (user != null && user.getPassword().equals(password)) {
             String token = TokenUtils.generateToken();
             user.setToken(token);
@@ -82,8 +82,8 @@ public class PropertyFileUserManagerImpl implements UserManager{
         return null;
     }
     @Override
-    public boolean logout(String email) {
-        User user = users.get(email);
+    public boolean logout(String mobileNumber) {
+        User user = users.get(mobileNumber);
         if (user != null) {
             user.setToken(null);
             saveUsersToFile();
@@ -92,8 +92,8 @@ public class PropertyFileUserManagerImpl implements UserManager{
         return false;
     }
     @Override
-    public boolean emailExists(String email) {
-        return users.containsKey(email);
+    public boolean numberExists(String mobileNumber) {
+        return users.containsKey(mobileNumber);
     }
     @Override
     public boolean isTokenValid(String token) {
