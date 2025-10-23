@@ -25,9 +25,6 @@ public class Ride {
     @Column(nullable = true)
     private int availableSeats;
 
-    @Column(nullable = true)
-    private double price;
-
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User driver;
@@ -74,13 +71,7 @@ public class Ride {
         this.availableSeats = availableSeats;
     }
 
-    public double getPrice() {
-        return price;
-    }
 
-    public void setPrice(double price) {
-        this.price = price;
-    }
 
     public User getDriver() {
         return driver;

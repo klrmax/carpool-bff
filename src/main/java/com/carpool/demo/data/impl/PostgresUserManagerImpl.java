@@ -26,12 +26,24 @@ public class PostgresUserManagerImpl implements UserManager {
 
     @Override
     public User loginUser(String mobileNumber, String password) {
+        System.out.println("Login attempt with number: " + mobileNumber);
         User user = userRepository.findByMobileNumber(mobileNumber);
-        if (user != null && user.getPassword().equals(password)) {
+
+        if (user == null) {
+            System.out.println("User not found!");
+            throw new RuntimeException("User not found");
+        }
+
+        System.out.println("User found: " + user.getName());
+        System.out.println("Password check: " + password.equals(user.getPassword()));
+
+        if (user.getPassword().equals(password)) {
             user.setToken(UUID.randomUUID().toString());
             user.setTokenExpiration(System.currentTimeMillis() + 3600000);
+            System.out.println("Generated token: " + user.getToken());
             return userRepository.save(user);
         }
+
         throw new RuntimeException("Invalid credentials");
     }
 
