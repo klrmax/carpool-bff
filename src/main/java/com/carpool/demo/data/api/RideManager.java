@@ -6,8 +6,8 @@ import java.util.List;
 
 public interface RideManager {
     List<Ride> getAllRides();
-    List<Ride> searchRides(String start, String destination);
-    Ride createRide(Ride ride);
+    List<Ride> searchRides(String start, String destination, String date, String time);
+    Ride createRide(Ride ride, String token);
     Ride getRideById(Integer id);
     void deleteRide(Integer id);
 }

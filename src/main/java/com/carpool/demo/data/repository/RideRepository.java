@@ -2,6 +2,7 @@ package com.carpool.demo.data.repository;
 import com.carpool.demo.model.ride.Ride;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import java.time.LocalDateTime;
 
 import java.util.List;
 
@@ -19,5 +20,13 @@ public interface RideRepository extends JpaRepository<Ride, Integer> {
 
     // Optional: Suche nur nach Zielort
     List<Ride> findByDestinationContainingIgnoreCase(String destination);
+
+    List<Ride> findByStartLocationContainingIgnoreCaseAndDestinationContainingIgnoreCaseAndDepartureTimeBetween(
+            String start,
+            String destination,
+
+            LocalDateTime from,
+            LocalDateTime to
+    );
 }
 
