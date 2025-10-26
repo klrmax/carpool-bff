@@ -39,9 +39,9 @@ public class RideController {
     @PostMapping
     public ResponseEntity<Ride> createRide(
             @RequestBody Ride ride,
-            @RequestHeader("X-Auth-Token") String token) {
+            @RequestParam(required = true) int userid) {
 
-        Ride newRide = rideManager.createRide(ride, token);
+        Ride newRide = rideManager.createRide(ride, userid);
         return ResponseEntity.ok(newRide);
     }
 

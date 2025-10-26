@@ -49,6 +49,7 @@ public class PostgresTaskManagerImpl implements TaskManager  {
             stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM tasks");
 
+
             while (rs.next()) {
                 Task t = new TaskImpl(
                                 rs.getString("name"),

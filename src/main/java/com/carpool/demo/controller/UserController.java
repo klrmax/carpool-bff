@@ -61,6 +61,7 @@ public class UserController {
     public void deleteUser(@PathVariable Integer id) {
         userManager.deleteUser(id);
     }
+
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(@RequestBody Map<String, String> data) {
         String token = data.get("token");

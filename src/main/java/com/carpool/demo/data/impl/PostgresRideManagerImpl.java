@@ -1,5 +1,6 @@
 package com.carpool.demo.data.impl;
 
+import com.carpool.demo.data.api.UserManager;
 import com.carpool.demo.data.repository.RideRepository;
 import com.carpool.demo.data.repository.UserRepository;
 import com.carpool.demo.model.ride.Ride;
@@ -20,6 +21,8 @@ public class PostgresRideManagerImpl implements RideManager {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserManager userManager;
 
     @Override
     public List<Ride> getAllRides() {
@@ -69,9 +72,9 @@ public class PostgresRideManagerImpl implements RideManager {
 
 
     @Override
-    public Ride createRide(Ride ride, String token) {
-        // Fahrer automatisch aus Token ermitteln
-        User driver = userRepository.findByToken(token);
+    public Ride createRide(Ride ride, int userid) {
+        // Fahrer automatisch aus userid ermitteln
+        User driver = userManager.getUserById(userid);
         ride.setDriver(driver);
 
         // Zeitstempel setzen
