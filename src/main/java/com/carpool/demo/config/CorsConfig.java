@@ -14,7 +14,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // gilt für alle Endpunkte
-                        .allowedOrigins("http://127.0.0.1:5501", "http://localhost:5501", "https://carpoolbff-c576f25b03e8.herokuapp.com")
+                        .allowedOrigins("http://127.0.0.1:5501", "http://localhost:5501", "https://carpoolbff-c576f25b03e8.herokuapp.com", "http://localhost:4200")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(false);
