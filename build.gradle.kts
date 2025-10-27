@@ -6,7 +6,12 @@ plugins {
 
 group = "com.heroku"
 version = "1.0.0-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_17
+// Toolchain-Konfiguration für Gradle
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
 
 repositories {
     mavenCentral()
@@ -19,4 +24,5 @@ dependencies {
     implementation("org.postgresql:postgresql")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.apache.commons:commons-dbcp2")
+    implementation("org.json:json:20231013")
 }
