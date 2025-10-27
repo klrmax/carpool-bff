@@ -14,10 +14,12 @@ public class TrainController {
 
     @GetMapping
     public ResponseEntity<String> getTrains(
-            @RequestParam String eva,
+            @RequestParam String start,
+            @RequestParam String destination,
             @RequestParam String date,
             @RequestParam String hour) {
-        String xml = trainManager.getTrainData(eva, date, hour);
-        return ResponseEntity.ok(xml);
+
+        String trains = trainManager.getTrainData(start, destination, date, hour);
+        return ResponseEntity.ok(trains);
     }
 }
