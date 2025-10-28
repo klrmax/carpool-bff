@@ -3,8 +3,10 @@ package com.carpool.demo.controller;
 import com.carpool.demo.model.user.User;
 import com.carpool.demo.data.api.UserManager;
 import com.carpool.demo.data.repository.UserRepository;
+import com.carpool.demo.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 
@@ -23,6 +25,12 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtUtils jwtUtils;
+
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody User user) {
         return ResponseEntity.ok(userManager.registerUser(user));
@@ -30,22 +38,30 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginData) {
-        try {
-            User user = userManager.loginUser(
-                    loginData.get("mobileNumber"),
-                    loginData.get("password")
-            );
-            return ResponseEntity.ok(Map.of(
-                    "message", "Login successful",
-                    "token", user.getToken(),
-                    "expiresAt", user.getTokenExpiration(),
-                    "userId", user.getUserid(),
-                    "name", user.getName()
-            ));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        String mobile = loginData.get("mobileNumber");
+        String password = loginData.get("password");
+
+        User user = userRepository.findByMobileNumber(mobile);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "User not found"));
         }
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid password"));
+        }
+        // JWT erzeugen
+        String token = jwtUtils.generateToken(user.getName(), user.getUserid());
+
+        return ResponseEntity.ok(Map.of(
+                "message", "Login successful",
+                "token", token,
+                "userId", user.getUserid(),
+                "name", user.getName()
+        ));
     }
+
 
     @GetMapping
     public List<User> getAllUsers() {
@@ -63,22 +79,11 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Map<String, String>> logout(@RequestBody Map<String, String> data) {
-        String token = data.get("token");
-        if (token == null || token.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "No token provided"));
-        }
-
-        User user = userRepository.findByToken(token);
-        if (user != null) {
-            user.setToken(null);
-            user.setTokenExpiration(0);
-            userRepository.save(user);
-            return ResponseEntity.ok(Map.of("message", "Logout successful"));
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "User not found for token"));
-        }
+    public ResponseEntity<Map<String, String>> logout() {
+        return ResponseEntity.ok(Map.of(
+                "message", "Logout successful — please delete your token on the client side"
+        ));
     }
+
 
 }
