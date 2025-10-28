@@ -69,8 +69,6 @@ public class PostgresRideManagerImpl implements RideManager {
         );
     }
 
-
-
     @Override
     public Ride createRide(Ride ride, int userid) {
         // Fahrer automatisch aus userid ermitteln
@@ -83,7 +81,6 @@ public class PostgresRideManagerImpl implements RideManager {
 
         return rideRepository.save(ride);
     }
-
 
     @Override
     public Ride getRideById(Integer id) {

@@ -141,12 +141,42 @@ public class RideRequestController {
                     .orElseThrow(() -> new IllegalArgumentException("Mitfahrer nicht gefunden"));
 
             List<RideRequest> requests = manager.getRequestsForPassenger(passenger);
-            return ResponseEntity.ok(requests);
+
+            // 🔧 Mappe in ein sauberes JSON-Response-Format
+            List<Map<String, Object>> result = requests.stream().map(req -> {
+                Map<String, Object> rideData = new HashMap<>();
+                Ride ride = req.getRide();
+
+                // Fahrtdaten
+                rideData.put("rideId", ride.getId());
+                rideData.put("start", ride.getStartLocation());
+                rideData.put("destination", ride.getDestination());
+                rideData.put("departureTime", ride.getDepartureTime());
+                rideData.put("availableSeats", ride.getAvailableSeats());
+
+                // Fahrerinfo
+                Map<String, Object> driverInfo = new HashMap<>();
+                driverInfo.put("driverId", ride.getDriver().getUserid());
+                driverInfo.put("driverName", ride.getDriver().getName());
+                rideData.put("driver", driverInfo);
+
+                // Anfrage-Infos
+                rideData.put("requestId", req.getId());
+                rideData.put("status", req.getStatus());
+                rideData.put("message", req.getMessage());
+                rideData.put("createdAt", req.getCreatedAt());
+
+                return rideData;
+            }).toList();
+
+            return ResponseEntity.ok(result);
+
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", e.getMessage()));
         }
     }
+
 
     // ----------------------------
     // Hilfsmethode zum Token-Handling

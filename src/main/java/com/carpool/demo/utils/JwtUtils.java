@@ -34,8 +34,16 @@ public class JwtUtils {
     }
 
     public int extractUserId(String token) {
-        Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
-        return (int) claims.get("userId");
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            return (int) claims.get("userId");
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid token");
+        }
     }
 
     public String extractUsername(String token) {

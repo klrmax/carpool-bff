@@ -28,5 +28,7 @@ public interface RideRepository extends JpaRepository<Ride, Integer> {
             LocalDateTime from,
             LocalDateTime to
     );
+    List<Ride> findByDriverUserid(Integer userId);
+
 }
 
