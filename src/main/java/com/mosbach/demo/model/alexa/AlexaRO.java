@@ -22,6 +22,7 @@ public class AlexaRO
     @JsonProperty("context")
     private ContextRO context;
 
+
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<>();
     
