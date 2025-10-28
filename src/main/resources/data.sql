@@ -1,0 +1,2 @@
+ALTER TABLE users DROP COLUMN IF EXISTS token;
+ALTER TABLE users DROP COLUMN IF EXISTS token_expiration;
