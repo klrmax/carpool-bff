@@ -12,4 +12,6 @@ public interface RideRequestManager {
     RideRequest changeStatus(Long requestId, RequestStatus newStatus);
     List<RideRequest> getOpenRequestsForDriver(User driver);
     List<RideRequest> getRequestsForPassenger(User passenger);
+    boolean existsByRideAndPassenger(Ride ride, User passenger);
+
 }

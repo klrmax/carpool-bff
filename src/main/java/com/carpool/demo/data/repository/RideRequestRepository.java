@@ -12,4 +12,6 @@ public interface RideRequestRepository extends JpaRepository<RideRequest, Long> 
     List<RideRequest> findByRideDriverAndStatus(User driver, RequestStatus status); // offene für Fahrer
     List<RideRequest> findByPassenger(User passenger); // eigene Anfragen
     List<RideRequest> findByRide(Ride ride); // alle zu einer Fahrt
+    boolean existsByRideAndPassenger(Ride ride, User passenger);
+
 }

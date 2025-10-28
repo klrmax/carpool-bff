@@ -49,4 +49,9 @@ public class RideRequestManagerImpl implements RideRequestManager {
     public List<RideRequest> getRequestsForPassenger(User passenger) {
         return repo.findByPassenger(passenger);
     }
+    @Override
+    public boolean existsByRideAndPassenger(Ride ride, User passenger) {
+        return repo.existsByRideAndPassenger(ride, passenger);
+    }
+
 }
