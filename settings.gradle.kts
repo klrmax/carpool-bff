@@ -1,1 +1,1 @@
-rootProject.name = "java-getting-started-gradle"
+rootProject.name = "carpool-bff"
