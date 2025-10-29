@@ -34,6 +34,10 @@ dependencies {
     // Security (für Passwort-Hashing & Auth)
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.security:spring-security-crypto")
+
+    // Für Cache mit Spring
+    implementation ("org.springframework.boot:spring-boot-starter-cache")
+
 }
 
 tasks.register("stage") {

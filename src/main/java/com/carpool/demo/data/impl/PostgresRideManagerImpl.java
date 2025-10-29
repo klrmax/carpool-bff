@@ -6,7 +6,9 @@ import com.carpool.demo.data.repository.UserRepository;
 import com.carpool.demo.model.ride.Ride;
 import com.carpool.demo.data.api.RideManager;
 import com.carpool.demo.model.user.User;
+import org.hibernate.annotations.Cache;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
@@ -25,6 +27,7 @@ public class PostgresRideManagerImpl implements RideManager {
     private UserManager userManager;
 
     @Override
+    @Cacheable("rides_all")
     public List<Ride> getAllRides() {
         return rideRepository.findAll();
     }

@@ -7,6 +7,7 @@ import com.carpool.demo.model.ride.*;
 import com.carpool.demo.model.user.User;
 import com.carpool.demo.utils.AuthUtils;
 import com.carpool.demo.utils.JwtUtils;
+import com.carpool.demo.utils.UserCache;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,17 +23,20 @@ public class RideRequestController {
     private final UserRepository userRepo;
     private final JwtUtils jwtUtils;
     private final AuthUtils authUtils;
+    private final UserCache userCache;
 
     public RideRequestController(RideRequestManager manager,
                                  RideRepository rideRepo,
                                  UserRepository userRepo,
                                  JwtUtils jwtUtils,
-                                 AuthUtils authUtils) {
+                                 AuthUtils authUtils,
+                                 UserCache userCache) {
         this.manager = manager;
         this.rideRepo = rideRepo;
         this.userRepo = userRepo;
         this.jwtUtils = jwtUtils;
         this.authUtils = authUtils;
+        this.userCache = userCache;
     }
 
     // ----------------------------
@@ -53,8 +57,7 @@ public class RideRequestController {
             }
 
             Integer passengerId = jwtUtils.extractUserId(token);
-            User passenger = userRepo.findById(passengerId)
-                    .orElseThrow(() -> new IllegalArgumentException("Nutzer nicht gefunden"));
+            User passenger = userCache.getUserById(passengerId);
 
             Ride ride = rideRepo.findById(rideId)
                     .orElseThrow(() -> new IllegalArgumentException("Fahrt mit ID " + rideId + " wurde nicht gefunden"));
@@ -97,8 +100,7 @@ public class RideRequestController {
             }
 
             Integer driverId = jwtUtils.extractUserId(token);
-            User driver = userRepo.findById(driverId)
-                    .orElseThrow(() -> new IllegalArgumentException("Fahrer nicht gefunden"));
+            User driver = userCache.getUserById(driverId);
 
             List<RideRequest> openRequests = manager.getOpenRequestsForDriver(driver);
             return ResponseEntity.ok(openRequests);
@@ -145,9 +147,7 @@ public class RideRequestController {
             }
 
             Integer passengerId = jwtUtils.extractUserId(token);
-            User passenger = userRepo.findById(passengerId)
-                    .orElseThrow(() -> new IllegalArgumentException("Mitfahrer nicht gefunden"));
-
+            User passenger = userCache.getUserById(passengerId);
             List<RideRequest> requests = manager.getRequestsForPassenger(passenger);
 
             // 🔧 Mappe in ein sauberes JSON-Response-Format

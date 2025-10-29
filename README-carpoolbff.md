@@ -5,9 +5,9 @@
 - POST /api/users/logout - User ausloggen
 
 ### Rides
-- GET /api/ride - Alle Fahrten
-- GET /api/ride/search?start=X&destination=Y&date=Z&time=T - Fahrten suchen
-- GET /api/ride/{id} - Einzelne Fahrt
+- GET /api/ride - Alle Fahrten (Token required)
+- GET /api/ride/search?start=X&destination=Y&date=Z&time=T - Fahrten suchen (Token required)
+- GET /api/ride/{id} - Einzelne Fahrt (Token required)
 - POST /api/ride - Neue Fahrt erstellen (Token required)
 - GET /api/ride/mine - Meine Fahrten (Token required)
 - GET /api/ride/joined - Fahrten wo ich Mitfahrer bin (Token required)
@@ -21,6 +21,7 @@
 
 ### Deutsche Bahn Integration
 - GET /api/trains?start=Frankfurt&destination=München&date=251030&hour=14
+
 
 ### // JavaScript Beispiel für das Token Handling
 fetch('https://carpoolbff-c576f25b03e8.herokuapp.com/api/ride', {
