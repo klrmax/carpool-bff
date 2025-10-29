@@ -5,6 +5,7 @@ import com.carpool.demo.data.repository.RideRepository;
 import com.carpool.demo.data.repository.UserRepository;
 import com.carpool.demo.model.ride.*;
 import com.carpool.demo.model.user.User;
+import com.carpool.demo.utils.AuthUtils;
 import com.carpool.demo.utils.JwtUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,15 +21,18 @@ public class RideRequestController {
     private final RideRepository rideRepo;
     private final UserRepository userRepo;
     private final JwtUtils jwtUtils;
+    private final AuthUtils authUtils;
 
     public RideRequestController(RideRequestManager manager,
                                  RideRepository rideRepo,
                                  UserRepository userRepo,
-                                 JwtUtils jwtUtils) {
+                                 JwtUtils jwtUtils,
+                                 AuthUtils authUtils) {
         this.manager = manager;
         this.rideRepo = rideRepo;
         this.userRepo = userRepo;
         this.jwtUtils = jwtUtils;
+        this.authUtils = authUtils;
     }
 
     // ----------------------------
@@ -41,10 +45,8 @@ public class RideRequestController {
             @RequestHeader("Authorization") String authHeader) {
 
         try {
-            // Token aus Header extrahieren
-            String token = extractToken(authHeader);
+            String token = authUtils.extractToken(authHeader);
 
-            // Token validieren & User auslesen
             if (!jwtUtils.validateToken(token)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("error", "Ungültiger oder abgelaufener Token"));
@@ -54,9 +56,14 @@ public class RideRequestController {
             User passenger = userRepo.findById(passengerId)
                     .orElseThrow(() -> new IllegalArgumentException("Nutzer nicht gefunden"));
 
-            // Fahrt prüfen
             Ride ride = rideRepo.findById(rideId)
                     .orElseThrow(() -> new IllegalArgumentException("Fahrt mit ID " + rideId + " wurde nicht gefunden"));
+
+            // Fahrer darf sich nicht selbst als Mitfahrer hinzufügen
+            if (ride.getDriver().getUserid() == passenger.getUserid()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("error", "Du kannst nicht als Mitfahrer bei deiner eigenen Fahrt beitreten"));
+            }
 
             // Doppelte Anfrage prüfen
             boolean alreadyExists = manager.existsByRideAndPassenger(ride, passenger);
@@ -75,13 +82,14 @@ public class RideRequestController {
         }
     }
 
+
     // ----------------------------
     // Offene Anfragen für Fahrer
     // ----------------------------
     @GetMapping("/open")
     public ResponseEntity<?> getOpenRequests(@RequestHeader("Authorization") String authHeader) {
         try {
-            String token = extractToken(authHeader);
+            String token = authUtils.extractToken(authHeader);
 
             if (!jwtUtils.validateToken(token)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -110,7 +118,7 @@ public class RideRequestController {
             @RequestHeader("Authorization") String authHeader) {
 
         try {
-            String token = extractToken(authHeader);
+            String token = authUtils.extractToken(authHeader);
             if (!jwtUtils.validateToken(token)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("error", "Ungültiger Token"));
@@ -130,7 +138,7 @@ public class RideRequestController {
     @GetMapping("/mine")
     public ResponseEntity<?> getPassengerRequests(@RequestHeader("Authorization") String authHeader) {
         try {
-            String token = extractToken(authHeader);
+            String token = authUtils.extractToken(authHeader);
             if (!jwtUtils.validateToken(token)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("error", "Ungültiger Token"));
@@ -181,10 +189,6 @@ public class RideRequestController {
     // ----------------------------
     // Hilfsmethode zum Token-Handling
     // ----------------------------
-    private String extractToken(String authHeader) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("Kein gültiger Authorization-Header");
-        }
-        return authHeader.substring(7);
-    }
+
+
 }

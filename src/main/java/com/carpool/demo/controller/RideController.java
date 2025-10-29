@@ -5,10 +5,13 @@ import com.carpool.demo.data.repository.RideRequestRepository;
 import com.carpool.demo.data.repository.UserRepository;
 import com.carpool.demo.model.ride.Ride;
 import com.carpool.demo.data.api.RideManager;
+import com.carpool.demo.utils.AuthUtils;
 import com.carpool.demo.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+
 
 import java.util.List;
 import java.util.Map;
@@ -31,6 +34,9 @@ public class RideController {
 
     @Autowired
     private RideRequestRepository  rideRequestRepository;
+
+    @Autowired
+    private AuthUtils authUtils;
 
     // Alle Fahrten abrufen
     @GetMapping
@@ -55,20 +61,21 @@ public class RideController {
     @PostMapping
     public ResponseEntity<?> createRide(
             @RequestBody Ride ride,
-            @RequestHeader("Authorization") String token) {
+            @RequestHeader("Authorization") String authHeader) {
         try {
-            // User-ID aus Token extrahieren
+            String token = authUtils.extractToken(authHeader);
             int userId = jwtUtils.extractUserId(token);
 
-            // Fahrt erstellen (Driver wird anhand der User-ID gesetzt)
             Ride newRide = rideManager.createRide(ride, userId);
-
             return ResponseEntity.ok(newRide);
 
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(401).body(Map.of("error", "Ungültiger oder abgelaufener Token"));
         }
     }
+
 
     // Einzelne Fahrt per ID abrufen
     @GetMapping("/{id}")
@@ -81,9 +88,11 @@ public class RideController {
     }
 
     @GetMapping("/mine")
-    public ResponseEntity<?> getMyRides(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> getMyRides(@RequestHeader("Authorization") String authHeader) {
 
         try {
+            String token = authUtils.extractToken(authHeader);
+
             // User-ID aus Token extrahieren
             int userId = jwtUtils.extractUserId(token);
 
@@ -98,8 +107,11 @@ public class RideController {
     }
 
     @GetMapping("/joined")
-    public ResponseEntity<?> getJoinedRides(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> getJoinedRides(@RequestHeader("Authorization") String authHeader) {
         try {
+
+            String token = authUtils.extractToken(authHeader);
+
             // User-ID aus Token extrahieren
             int userId = jwtUtils.extractUserId(token);
 

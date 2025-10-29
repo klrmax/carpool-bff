@@ -33,6 +33,7 @@ public class JwtUtils {
         }
     }
 
+
     public int extractUserId(String token) {
         try {
             Claims claims = Jwts.parserBuilder()
@@ -40,13 +41,18 @@ public class JwtUtils {
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
-            return (int) claims.get("userId");
+
+            Object userIdObj = claims.get("userId");
+            if (userIdObj instanceof Integer) {
+                return (Integer) userIdObj;
+            } else if (userIdObj instanceof Long) {
+                return ((Long) userIdObj).intValue();
+            } else {
+                throw new IllegalArgumentException("Invalid userId in token");
+            }
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid token");
         }
     }
 
-    public String extractUsername(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
-    }
 }
