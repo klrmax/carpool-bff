@@ -21,14 +21,22 @@ public class JwtAuthenticationFilter implements Filter {
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         String authHeader = httpRequest.getHeader("Authorization");
+        String requestUri = httpRequest.getRequestURI();
 
-        if (authHeader != null && jwtUtils.validateToken(authHeader)) {
-            // valid token – weiterleiten
+        boolean isPublicEndpoint =
+                requestUri.startsWith("/api/users/login") ||
+                requestUri.startsWith("/api/users/register") ||
+                requestUri.startsWith("/api/ride/search") ||
+                requestUri.equals("/api/ride");
+                requestUri.startsWith("/api/trains");
+
+        if (isPublicEndpoint) {
+            // Öffentlicher Endpunkt ohne token erlaubt
             chain.doFilter(request, response);
-        } else if (httpRequest.getRequestURI().startsWith("/api/users/login") ||
-                httpRequest.getRequestURI().startsWith("/api/users/register")) {
-            chain.doFilter(request, response); // login/register ohne Token erlaubt
+        } else if (authHeader != null && jwtUtils.validateToken(authHeader)) {
+            chain.doFilter(request, response);
         } else {
+            // Geschützter Endpunkt ohne gültigen Token
             HttpServletResponse httpResponse = (HttpServletResponse) response;
             httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             httpResponse.getWriter().write("{\"error\": \"Unauthorized or invalid token\"}");
