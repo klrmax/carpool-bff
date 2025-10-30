@@ -30,8 +30,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Diese Endpunkte sind öffentlich
                         .requestMatchers("/api/users/register", "/api/users/login").permitAll()
+                        .requestMatchers("/api/ride, /api/ride/search").permitAll()
+                        .requestMatchers("/api/trains/**").permitAll()
                         // Alle anderen brauchen Authentifizierung
-                        .anyRequest().permitAll() // (später kannst du hier .authenticated() setzen)
+                        .anyRequest().authenticated()
                 )
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .formLogin(form -> form.disable());
