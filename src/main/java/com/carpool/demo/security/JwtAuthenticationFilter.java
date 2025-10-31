@@ -28,6 +28,7 @@ public class JwtAuthenticationFilter implements Filter {
                 requestUri.startsWith("/api/users/register") ||
                 requestUri.startsWith("/api/ride/search") ||
                 requestUri.equals("/api/ride") ||
+                requestUri.startsWith("/api/ride/search-async/") ||
                 requestUri.startsWith("/api/trains");
 
         if (isPublicEndpoint) {

@@ -30,7 +30,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Diese Endpunkte sind öffentlich
                         .requestMatchers("/api/users/register", "/api/users/login").permitAll()
-                        .requestMatchers("/api/ride", "/api/ride/search", "/api/ride/search-asnyc").permitAll()
+                        .requestMatchers("/api/ride", "/api/ride/search", "/api/ride/search-async").permitAll()
                         .requestMatchers("/api/trains/**").permitAll()
                         // Alle anderen brauchen Authentifizierung
                         .anyRequest().authenticated()
