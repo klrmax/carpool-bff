@@ -135,8 +135,13 @@ public class RideController {
     public ResponseEntity<?> searchRidesAsync(
             @RequestParam String from,
             @RequestParam String to,
-            @RequestParam String date) {
+            @RequestParam(required = false) String date) {
         try {
+            // Use today's date if not provided
+            if (date == null || date.isEmpty()) {
+                date = java.time.LocalDate.now().toString().replace("-", "");
+            }
+            
             Map<String, Object> result = rideManager.searchParallel(from, to, date)
                     .get();  // .get() wartet auf Ergebnis
 
