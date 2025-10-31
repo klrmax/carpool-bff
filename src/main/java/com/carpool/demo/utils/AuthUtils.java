@@ -31,8 +31,8 @@ public class AuthUtils {
         // Entferne "Bearer" (egal ob groß/klein, mit/ohne Leerzeichen)
         String token = authHeader.replaceFirst("(?i)^Bearer\\s*", "");
 
-        // Entferne ALLE Zeichen, die nicht in Base64URL erlaubt sind
-        token = token.replaceAll("[^A-Za-z0-9\\-_\\.]", "");
+        // Entferne ALLE Zeichen, die nicht in Base64URL erlaubt sind (plus Punkt)
+        token = token.replaceAll("[^A-Za-z0-9_\\.-]", "");
 
         System.out.println("🔹 Cleaned token: [" + token + "]");
         return token;
