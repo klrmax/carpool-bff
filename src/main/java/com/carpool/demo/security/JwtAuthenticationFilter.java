@@ -1,5 +1,6 @@
 package com.carpool.demo.security;
 
+import com.carpool.demo.utils.AuthUtils;
 import com.carpool.demo.utils.JwtUtils;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
