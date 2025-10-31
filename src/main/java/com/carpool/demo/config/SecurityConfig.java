@@ -75,7 +75,8 @@ public class SecurityConfig {
                 "http://127.0.0.1:5501",
                 "http://localhost:5501",
                 "https://carpoolbff-c576f25b03e8.herokuapp.com",
-                "https://carpool-spa-dc2811d7ff92.herokuapp.com"
+                "https://carpool-spa-dc2811d7ff92.herokuapp.com",
+                "https://carpool-mpa-b2ab41ee1e9d.herokuapp.com"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
