@@ -1,0 +1,84 @@
+# ================================
+# Root Queries
+# ================================
+type Query {
+    # --- Fahrten ---
+    getRideById(id: ID!): Ride
+    searchRides(from: String!, to: String!): [Ride]
+    getAllRides: [Ride]
+
+    # --- Mitfahranfragen ---
+    getRideRequests: [RideRequest!]!          # als Mitfahrer
+    getOpenRideRequests: [RideRequest!]!      # als Fahrer
+
+    # --- Zugverbindungen ---
+    getTrainConnections(from: String!, to: String!): [TrainConnection]
+}
+
+# ================================
+# Root Mutations
+# ================================
+type Mutation {
+    # --- Auth ---
+    register(name: String!, mobileNumber: String!, password: String!): AuthPayload
+    login(mobileNumber: String!, password: String!): AuthPayload
+
+    # --- Fahrt anlegen ---
+    createRide(
+        startLocation: String!,
+        destination: String!,
+        departureTime: String!,
+        availableSeats: Int!
+    ): Ride
+
+    # --- Mitfahranfrage ---
+    createRideRequest(rideId: ID!, message: String): RideRequest!
+    changeRideRequestStatus(requestId: ID!, status: String!): RideRequest!
+}
+
+# ================================
+# Object Types
+# ================================
+type User {
+    userid: ID!
+    name: String!
+    mobileNumber: String!
+}
+
+type Ride {
+    id: ID!
+    startLocation: String!
+    destination: String!
+    departure_time: String
+    availableSeats: Int!
+    driver: User
+    created_at: String
+    date: String
+}
+
+type RideRequest {
+    id: ID!
+    passenger: User!
+    ride: Ride!
+    message: String
+    status: String!
+    createdAt: String
+}
+
+type TrainConnection {
+    trainNumber: String!
+    direction: String!
+    plannedTime: String!
+    plannedPlatform: String
+    stationEva: String
+    stationName: String
+    type: String
+}
+
+# ================================
+# Auth result
+# ================================
+type AuthPayload {
+    token: String!
+    user: User!
+}

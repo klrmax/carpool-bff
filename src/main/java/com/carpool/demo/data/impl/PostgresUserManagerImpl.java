@@ -1,15 +1,16 @@
 package com.carpool.demo.data.impl;
 
-import com.carpool.demo.model.user.User;
-import com.carpool.demo.data.repository.UserRepository;
 import com.carpool.demo.data.api.UserManager;
+import com.carpool.demo.data.repository.UserRepository;
+import com.carpool.demo.exception.GraphQLRequestException;
+import com.carpool.demo.model.user.User;
 import com.carpool.demo.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.graphql.execution.ErrorType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class PostgresUserManagerImpl implements UserManager {
@@ -23,12 +24,15 @@ public class PostgresUserManagerImpl implements UserManager {
     @Autowired
     private JwtUtils jwtUtils;
 
-
     @Override
     public User registerUser(User user) {
         if (userRepository.findByMobileNumber(user.getMobileNumber()) != null) {
-            throw new RuntimeException("User already exists");
+            throw new GraphQLRequestException(
+                    "Benutzer mit dieser Telefonnummer existiert bereits",
+                    ErrorType.BAD_REQUEST
+            );
         }
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
@@ -39,25 +43,29 @@ public class PostgresUserManagerImpl implements UserManager {
         User user = userRepository.findByMobileNumber(mobileNumber);
 
         if (user == null) {
-            System.out.println("User not found!");
-            throw new RuntimeException("User not found");
+            System.out.println("❌ Benutzer nicht gefunden!");
+            throw new GraphQLRequestException(
+                    "Benutzer wurde nicht gefunden",
+                    ErrorType.NOT_FOUND
+            );
         }
 
-        System.out.println("User found: " + user.getName());
+        System.out.println("✅ Benutzer gefunden: " + user.getName());
 
         // Passwortprüfung mit BCrypt
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new GraphQLRequestException(
+                    "Falsches Passwort",
+                    ErrorType.UNAUTHORIZED
+            );
         }
 
-        // JWT generieren
+        // JWT generieren (optional: wird im Controller verwendet)
         String token = jwtUtils.generateToken(user.getName(), user.getUserid());
-        System.out.println("Generated JWT: " + token);
+        System.out.println("🔑 Generated JWT: " + token);
 
-        // Kein Speichern mehr nötig!
-        return user; // nur zurückgeben, nicht speichern
+        return user;
     }
-
 
     @Override
     public List<User> getAllUsers() {
