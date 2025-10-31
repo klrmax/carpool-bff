@@ -11,6 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import org.springframework.scheduling.annotation.Async;
+import java.util.concurrent.CompletableFuture;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 
 import java.util.List;
@@ -94,4 +99,48 @@ public class PostgresRideManagerImpl implements RideManager {
     public void deleteRide(Integer id) {
         rideRepository.deleteById(id);
     }
+
+    @Override
+    @Async("taskExecutor")
+    public CompletableFuture<Map<String, Object>> searchParallel(String from, String to, String date) {
+        try {
+            // Starte Carpool-Suche parallel
+            CompletableFuture<List<Ride>> carpoolFuture = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return searchRides(from, to, date, null);  // ← Nutze bestehende Methode
+                } catch (Exception e) {
+                    System.out.println("Fehler bei Carpool-Suche: " + e.getMessage());
+                    return new ArrayList<>();
+                }
+            });
+
+            // Starte DB-API-Suche parallel
+            CompletableFuture<String> trainsFuture = CompletableFuture.supplyAsync(() -> {
+                try {
+                    DBTrainManagerImpl trainManager = new DBTrainManagerImpl();
+                    return trainManager.getTrainData(from, to, date, "08");  // ← Korrekte Methode mit hour="08"
+                } catch (Exception e) {
+                    System.out.println("Fehler bei Bahn-Suche: " + e.getMessage());
+                    return "{}";
+                }
+            });
+
+            // Warte bis beide fertig sind
+            CompletableFuture.allOf(carpoolFuture, trainsFuture).join();
+
+            // Kombiniere Ergebnisse
+            Map<String, Object> result = new HashMap<>();
+            result.put("carpoolRides", carpoolFuture.join());
+            result.put("trainData", trainsFuture.join());  // ← Jetzt als String
+            result.put("timestamp", System.currentTimeMillis());
+
+            return CompletableFuture.completedFuture(result);
+        } catch (Exception e) {
+            System.out.println("Fehler bei paralleler Suche: " + e.getMessage());
+            return CompletableFuture.failedFuture(e);
+        }
+    }
+
+
+
 }

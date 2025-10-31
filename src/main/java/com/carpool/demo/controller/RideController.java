@@ -8,6 +8,7 @@ import com.carpool.demo.data.api.RideManager;
 import com.carpool.demo.utils.AuthUtils;
 import com.carpool.demo.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -129,6 +130,21 @@ public class RideController {
     public ResponseEntity<Void> deleteRide(@PathVariable Integer id) {
         rideManager.deleteRide(id);
         return ResponseEntity.ok().build();
+    }
+    @GetMapping("/search-async")
+    public ResponseEntity<?> searchRidesAsync(
+            @RequestParam String from,
+            @RequestParam String to,
+            @RequestParam String date) {
+        try {
+            Map<String, Object> result = rideManager.searchParallel(from, to, date)
+                    .get();  // .get() wartet auf Ergebnis
+
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 
 }
