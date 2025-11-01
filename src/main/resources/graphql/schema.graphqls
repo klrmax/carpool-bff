@@ -4,7 +4,7 @@
 type Query {
     # --- Fahrten ---
     getRideById(id: ID!): Ride
-    searchRides(from: String!, to: String!): [Ride]
+    searchRides(start: String, destination: String, date: String, time: String): [Ride]
     getAllRides: [Ride]
 
     # --- Mitfahranfragen ---
@@ -12,10 +12,10 @@ type Query {
     getOpenRideRequests: [RideRequest!]!      # als Fahrer
 
     # --- Zugverbindungen ---
-    getTrainConnections(from: String!, to: String!): [TrainConnection]
+    getTrainConnections(from: String!, to: String!, date: String, hour: String): [TrainConnection]
 }
 
-# ================================
+    # ================================
 # Root Mutations
 # ================================
 type Mutation {
@@ -49,10 +49,10 @@ type Ride {
     id: ID!
     startLocation: String!
     destination: String!
-    departure_time: String
+    departureTime: String
     availableSeats: Int!
     driver: User
-    created_at: String
+    createdAt: String
     date: String
 }
 

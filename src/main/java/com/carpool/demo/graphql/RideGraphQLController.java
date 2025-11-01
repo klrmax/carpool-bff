@@ -1,6 +1,7 @@
 package com.carpool.demo.graphql;
 
 import com.carpool.demo.data.api.RideManager;
+import com.carpool.demo.exception.GraphQLRequestException;
 import com.carpool.demo.model.ride.Ride;
 import com.carpool.demo.model.user.User;
 import com.carpool.demo.utils.AuthUtils;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.graphql.execution.ErrorType;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDateTime;
@@ -26,7 +28,7 @@ public class RideGraphQLController {
         this.authUtils = authUtils;
     }
 
-    // 🔹 Mutation: Fahrt erstellen
+    // Mutation: Fahrt erstellen
     @MutationMapping
     public Ride createRide(
             @Argument String startLocation,
@@ -35,47 +37,113 @@ public class RideGraphQLController {
             @Argument Integer availableSeats,
             GraphQLContext context
     ) {
+        // Token validieren
         String token = context.get("Authorization");
         User user = authUtils.getUserFromToken(token);
-
-        Ride ride = new Ride();
-        ride.setStartLocation(startLocation);
-        ride.setDestination(destination);
-
-        try {
-            ride.setDepartureTime(LocalDateTime.parse(departureTime));
-        } catch (Exception e) {
-            System.err.println("⚠️ Fehler beim Parsen von departureTime: " + departureTime);
-            throw new RuntimeException("Ungültiges Datumsformat. Erwartet: yyyy-MM-dd'T'HH:mm:ss");
+        if (user == null) {
+            throw new GraphQLRequestException("Nicht autorisiert: Ungültiges oder fehlendes Token", ErrorType.UNAUTHORIZED);
         }
 
+        // Eingaben prüfen
+        if (startLocation == null || startLocation.isBlank()) {
+            throw new GraphQLRequestException("Startort darf nicht leer sein", ErrorType.BAD_REQUEST);
+        }
+        if (destination == null || destination.isBlank()) {
+            throw new GraphQLRequestException("Zielort darf nicht leer sein", ErrorType.BAD_REQUEST);
+        }
+        if (availableSeats == null || availableSeats <= 0) {
+            throw new GraphQLRequestException("Die Anzahl verfügbarer Sitzplätze muss größer als 0 sein", ErrorType.BAD_REQUEST);
+        }
+
+        // Abfahrtszeit prüfen
+        LocalDateTime parsedDepartureTime;
+        try {
+            parsedDepartureTime = LocalDateTime.parse(departureTime);
+        } catch (Exception e) {
+            throw new GraphQLRequestException(
+                    "Ungültiges Datumsformat für 'departureTime'. Erwartet: yyyy-MM-dd'T'HH:mm:ss",
+                    ErrorType.BAD_REQUEST
+            );
+        }
+
+        // Fahrt-Objekt aufbauen
+        Ride ride = new Ride();
+        ride.setStartLocation(startLocation.trim());
+        ride.setDestination(destination.trim());
+        ride.setDepartureTime(parsedDepartureTime);
         ride.setAvailableSeats(availableSeats);
 
-        System.out.println("🕒 departureTime vorm Speichern: " + ride.getDepartureTime());
+        System.out.println("Abfahrtszeit vor dem Speichern: " + ride.getDepartureTime());
 
-        return rideManager.createRide(ride, user.getUserid());
+        // Fahrt speichern
+        try {
+            return rideManager.createRide(ride, user.getUserid());
+        } catch (Exception e) {
+            throw new GraphQLRequestException("Fehler beim Erstellen der Fahrt: " + e.getMessage(), ErrorType.INTERNAL_ERROR);
+        }
     }
 
-    // 🔹 Query: Alle Fahrten abrufen
+    // Query: Alle Fahrten abrufen (nur mit Token)
     @QueryMapping
-    public List<Ride> getAllRides() {
+    public List<Ride> getAllRides(GraphQLContext context) {
+        String token = context.get("Authorization");
+        if (token == null) {
+            throw new GraphQLRequestException("Nicht autorisiert: Ungültiges oder fehlendes Token", ErrorType.UNAUTHORIZED);
+        }
+
+        authUtils.getUserFromToken(token);
         return rideManager.getAllRides();
     }
 
-    // 🔹 Query: Fahrt per ID abrufen
+    // Query: Fahrt per ID abrufen (nur mit Token)
     @QueryMapping
-    public Ride getRideById(@Argument Integer id) {
+    public Ride getRideById(@Argument Integer id, GraphQLContext context) {
+        String token = context.get("Authorization");
+        if (token == null) {
+            throw new GraphQLRequestException("Nicht autorisiert: Ungültiges oder fehlendes Token", ErrorType.UNAUTHORIZED);        }
+
+        authUtils.getUserFromToken(token);
         return rideManager.getRideById(id);
     }
 
-    // 🔹 Query: Fahrten suchen
+    // Query: Fahrten suchen (nur mit Token)
     @QueryMapping
     public List<Ride> searchRides(
             @Argument String start,
             @Argument String destination,
             @Argument String date,
-            @Argument String time
+            @Argument String time,
+            GraphQLContext context
     ) {
-        return rideManager.searchRides(start, destination, date, time);
+        String token = context.get("Authorization");
+        if (token == null || token.isBlank()) {
+            throw new GraphQLRequestException("Nicht autorisiert: Ungültiges oder fehlendes Token", ErrorType.UNAUTHORIZED);        }
+
+        authUtils.getUserFromToken(token); // Token prüfen
+
+        if ((start == null || start.isBlank()) && (destination == null || destination.isBlank())) {
+            throw new GraphQLRequestException("Bitte Start- oder Zielort angeben", ErrorType.BAD_REQUEST);
+        }
+
+        List<Ride> rides;
+        try {
+            rides = rideManager.searchRides(start, destination, date, time);
+        } catch (Exception e) {
+            throw new GraphQLRequestException("Fehler bei der Fahrtsuche: " + e.getMessage(), ErrorType.INTERNAL_ERROR);
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        // 🔹 Filter: Nur Fahrten mit freien Plätzen UND in der Zukunft
+        List<Ride> filtered = rides.stream()
+                .filter(ride -> ride.getAvailableSeats() > 0)
+                .filter(ride -> ride.getDepartureTime() != null && ride.getDepartureTime().isAfter(now))
+                .toList();
+
+        if (filtered.isEmpty()) {
+            throw new GraphQLRequestException("Keine passenden Fahrten mit freien Sitzplätzen gefunden", ErrorType.NOT_FOUND);
+        }
+
+        return filtered;
     }
 }

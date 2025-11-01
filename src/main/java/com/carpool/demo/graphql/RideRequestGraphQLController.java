@@ -2,6 +2,7 @@ package com.carpool.demo.graphql;
 
 import com.carpool.demo.data.api.RideManager;
 import com.carpool.demo.data.api.RideRequestManager;
+import com.carpool.demo.exception.GraphQLRequestException;
 import com.carpool.demo.model.ride.Ride;
 import com.carpool.demo.model.ride.RideRequest;
 import com.carpool.demo.model.ride.RequestStatus;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.graphql.execution.ErrorType;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
@@ -34,7 +36,7 @@ public class RideRequestGraphQLController {
         this.authUtils = authUtils;
     }
 
-    // Mutation: Mitfahranfrage erstellen
+    // 🔹 Mutation: Mitfahranfrage erstellen
     @MutationMapping
     public RideRequest createRideRequest(
             @Argument Integer rideId,
@@ -46,37 +48,44 @@ public class RideRequestGraphQLController {
 
         Ride ride = rideManager.getRideById(rideId);
         if (ride == null) {
-            throw new RuntimeException("Fahrt nicht gefunden");
+            throw new GraphQLRequestException("Fahrt wurde nicht gefunden", ErrorType.NOT_FOUND);
         }
 
+        // int-Vergleich mit ==
         if (ride.getDriver() != null && ride.getDriver().getUserid() == passenger.getUserid()) {
-            throw new RuntimeException("Du kannst nicht bei deiner eigenen Fahrt mitfahren");
+            throw new GraphQLRequestException("Du kannst keine Anfrage für deine eigene Fahrt stellen", ErrorType.BAD_REQUEST);
         }
 
         if (rideRequestManager.existsByRideAndPassenger(ride, passenger)) {
-            throw new RuntimeException("Du hast für diese Fahrt bereits eine Anfrage gestellt");
+            throw new GraphQLRequestException("Du hast bereits eine Anfrage für diese Fahrt gestellt", ErrorType.BAD_REQUEST);
         }
 
         return rideRequestManager.createRequest(passenger, ride, message);
     }
 
-    //Query: Eigene Mitfahranfragen (als Passenger)
+    // 🔹 Query: Eigene Mitfahranfragen (als Passenger)
     @QueryMapping
     public List<RideRequest> getRideRequests(GraphQLContext context) {
         String token = context.get("Authorization");
+        if (token == null || token.isBlank()) {
+            throw new GraphQLRequestException("Nicht autorisiert: Kein Token übergeben", ErrorType.UNAUTHORIZED);
+        }
         User user = authUtils.getUserFromToken(token);
         return rideRequestManager.getRequestsForPassenger(user);
     }
 
-    // Query: Offene Anfragen für eigene Fahrten (als Driver)
+    // 🔹 Query: Offene Anfragen für eigene Fahrten (als Driver)
     @QueryMapping
     public List<RideRequest> getOpenRideRequests(GraphQLContext context) {
         String token = context.get("Authorization");
+        if (token == null || token.isBlank()) {
+            throw new GraphQLRequestException("Nicht autorisiert: Kein Token übergeben", ErrorType.UNAUTHORIZED);
+        }
         User user = authUtils.getUserFromToken(token);
         return rideRequestManager.getOpenRequestsForDriver(user);
     }
 
-    // Mutation: Status einer Mitfahranfrage ändern (nur Fahrer)
+    // 🔹 Mutation: Status einer Mitfahranfrage ändern (nur Fahrer)
     @MutationMapping
     public RideRequest changeRideRequestStatus(
             @Argument Long requestId,
@@ -90,13 +99,18 @@ public class RideRequestGraphQLController {
         try {
             newStatus = RequestStatus.valueOf(status.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Ungültiger Status: " + status + " (erlaubt: PENDING, ACCEPTED, REJECTED)");
+            throw new GraphQLRequestException(
+                    "Ungültiger Status: " + status + " (erlaubt: PENDING, ACCEPTED, REJECTED)",
+                    ErrorType.BAD_REQUEST
+            );
         }
 
         RideRequest request = rideRequestManager.changeStatus(requestId, newStatus);
+
+        // int-Vergleich mit ==
         if (request.getRide().getDriver() == null ||
                 request.getRide().getDriver().getUserid() != driver.getUserid()) {
-            throw new RuntimeException("Nur der Fahrer dieser Fahrt darf den Status ändern");
+            throw new GraphQLRequestException("Nur der Fahrer darf den Status dieser Anfrage ändern", ErrorType.UNAUTHORIZED);
         }
 
         return request;

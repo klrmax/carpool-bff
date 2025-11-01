@@ -22,15 +22,9 @@ public class Ride {
     @Column(nullable = false)
     private String destination;
 
-    /*@JsonProperty("departure_time")
-    @Column(nullable = false)           //Von Noah auskommentiert
-    private LocalDateTime departureTime;
-    */
-
     @JsonProperty("departure_time")
     @Column(name = "departure_time", nullable = false)
     private LocalDateTime departureTime;
-
 
     @JsonProperty("seats_available")
     private int availableSeats;
