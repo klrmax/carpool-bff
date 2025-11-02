@@ -6,7 +6,7 @@
 
 ### Rides
 - GET /api/ride - Alle Fahrten (Token required)
-- GET /api/ride/search?start=X&destination=Y&date=Z&time=T - Fahrten suchen (Token required)
+- GET /api/ride/search?departure_location=X&destination_location=Y&date=Z&time=T - Fahrten suchen (Token required)
 - GET /api/ride/{id} - Einzelne Fahrt (Token required)
 - POST /api/ride - Neue Fahrt erstellen (Token required)
 - GET /api/ride/mine - Meine Fahrten (Token required)

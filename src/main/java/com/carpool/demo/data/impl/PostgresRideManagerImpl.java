@@ -28,6 +28,7 @@ public class PostgresRideManagerImpl implements RideManager {
 
     @Autowired
     private UserRepository userRepository;
+    
     @Autowired
     private UserManager userManager;
 
@@ -65,7 +66,7 @@ public class PostgresRideManagerImpl implements RideManager {
                     to = from.plusDays(1);
                 }
             } catch (Exception e) {
-                System.out.println("⚠️ Fehler beim Parsen von Datum/Zeit: " + e.getMessage());
+                System.out.println("Fehler beim Parsen von Datum/Zeit: " + e.getMessage());
             }
         }
 

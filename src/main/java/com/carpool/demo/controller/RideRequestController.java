@@ -163,10 +163,10 @@ public class RideRequestController {
 
                 // Fahrtdaten
                 rideData.put("rideId", ride.getId());
-                rideData.put("start", ride.getStartLocation());
-                rideData.put("destination", ride.getDestination());
-                rideData.put("departureTime", ride.getDepartureTime());
-                rideData.put("availableSeats", ride.getAvailableSeats());
+                rideData.put("departure_location", ride.getStartLocation());
+                rideData.put("destination_location", ride.getDestination());
+                rideData.put("departure_time", ride.getDepartureTime());
+                rideData.put("seats_available", ride.getAvailableSeats());
 
                 // Fahrerinfo
                 Map<String, Object> driverInfo = new HashMap<>();
@@ -178,7 +178,7 @@ public class RideRequestController {
                 rideData.put("requestId", req.getId());
                 rideData.put("status", req.getStatus());
                 rideData.put("message", req.getMessage());
-                rideData.put("createdAt", req.getCreatedAt());
+                rideData.put("created_at", req.getCreatedAt());
 
                 return rideData;
             }).toList();
