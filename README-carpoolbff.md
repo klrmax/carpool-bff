@@ -14,7 +14,7 @@
 - DELETE /api/ride/{id} - Fahrt löschen (Token required)
 
 ### Ride Requests (Mitfahranfragen)
-- POST /api/ride-request - Mitfahranfrage erstellen (Token required)
+- POST /api/ride-request - Mitfahranfrage erstellen (Token required) Query Parameter ride ID
 - GET /api/ride-request/open - Offene Anfragen für meine Fahrten (Token required)
 - GET /api/ride-request/mine - Meine gesendeten Anfragen (Token required)
 - PATCH /api/ride-request/{id} - Anfrage annehmen/ablehnen (Token required)
