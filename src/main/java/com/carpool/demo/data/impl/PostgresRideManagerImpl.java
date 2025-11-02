@@ -42,23 +42,34 @@ public class PostgresRideManagerImpl implements RideManager {
         LocalDateTime from = null;
         LocalDateTime to = null;
 
-        try {
-            if (date != null && !date.isEmpty()) {
-                // Wenn auch Uhrzeit angegeben ist, such ab dieser Uhrzeit ± 2 Stunden
-                if (time != null && !time.isEmpty()) {
+        // Eingaben normalisieren – leere Strings als null behandeln
+        start = (start != null && !start.trim().isEmpty()) ? start.trim() : null;
+        destination = (destination != null && !destination.trim().isEmpty()) ? destination.trim() : null;
+        date = (date != null && !date.trim().isEmpty()) ? date.trim() : null;
+        time = (time != null && !time.trim().isEmpty()) ? time.trim() : null;
+
+        // Wenn gar nichts übergeben wurde → leere Liste zurückgeben
+        if (start == null && destination == null && date == null) {
+            System.out.println("Keine Suchparameter angegeben – keine Ergebnisse.");
+            return List.of();
+        }
+
+        // Datum/Zeit parsen, falls angegeben
+        if (date != null) {
+            try {
+                if (time != null) {
                     from = LocalDateTime.parse(date + "T" + time + ":00");
                     to = from.plusHours(2);
                 } else {
-                    // Nur Datum angegeben → ganzer Tag
                     from = LocalDateTime.parse(date + "T00:00:00");
                     to = from.plusDays(1);
                 }
+            } catch (Exception e) {
+                System.out.println("⚠️ Fehler beim Parsen von Datum/Zeit: " + e.getMessage());
             }
-        } catch (Exception e) {
-            System.out.println("Fehler beim Parsen von Datum/Zeit: " + e.getMessage());
         }
 
-        // Keine Zeitangabe → einfache Start/Ziel-Suche
+        // Falls kein Datum angegeben → Suche nur nach Start/Ziel
         if (from == null) {
             if (start != null && destination != null) {
                 return rideRepository.findByStartLocationContainingIgnoreCaseAndDestinationContainingIgnoreCase(start, destination);
@@ -66,14 +77,15 @@ public class PostgresRideManagerImpl implements RideManager {
                 return rideRepository.findByStartLocationContainingIgnoreCase(start);
             } else if (destination != null) {
                 return rideRepository.findByDestinationContainingIgnoreCase(destination);
-            } else {
-                return rideRepository.findAll();
             }
         }
 
-        // Suche nach Start, Ziel und Zeitbereich
+        // Falls Datum vorhanden → Suche nach Ort + Zeitbereich
         return rideRepository.findByStartLocationContainingIgnoreCaseAndDestinationContainingIgnoreCaseAndDepartureTimeBetween(
-                start, destination, from, to
+                start != null ? start : "",
+                destination != null ? destination : "",
+                from,
+                to
         );
     }
 

@@ -1,11 +1,12 @@
 package com.carpool.demo.data.impl;
 
 import com.carpool.demo.data.api.RideRequestManager;
+import com.carpool.demo.data.repository.RideRepository;
 import com.carpool.demo.data.repository.RideRequestRepository;
+import com.carpool.demo.model.ride.Ride;
 import com.carpool.demo.model.ride.RideRequest;
 import com.carpool.demo.model.ride.RequestStatus;
 import com.carpool.demo.model.user.User;
-import com.carpool.demo.model.ride.Ride;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,10 +15,12 @@ import java.util.List;
 @Service
 public class RideRequestManagerImpl implements RideRequestManager {
 
-    private final RideRequestRepository repo;
+    private final RideRequestRepository requestRepo;
+    private final RideRepository rideRepo;
 
-    public RideRequestManagerImpl(RideRequestRepository repo) {
-        this.repo = repo;
+    public RideRequestManagerImpl(RideRequestRepository requestRepo, RideRepository rideRepo) {
+        this.requestRepo = requestRepo;
+        this.rideRepo = rideRepo;
     }
 
     @Override
@@ -28,30 +31,44 @@ public class RideRequestManagerImpl implements RideRequestManager {
         req.setRide(ride);
         req.setMessage(message);
         req.setStatus(RequestStatus.PENDING);
-        return repo.save(req);
+        return requestRepo.save(req);
     }
 
     @Override
     @Transactional
     public RideRequest changeStatus(Long requestId, RequestStatus newStatus) {
-        RideRequest req = repo.findById(requestId)
+        RideRequest req = requestRepo.findById(requestId)
                 .orElseThrow(() -> new IllegalArgumentException("Anfrage nicht gefunden"));
+
+        Ride ride = req.getRide();
+
+        // Wenn Anfrage auf ACCEPTED gesetzt wird → Sitz reduzieren
+        if (newStatus == RequestStatus.ACCEPTED) {
+            if (ride.getAvailableSeats() <= 0) {
+                throw new IllegalStateException("Keine verfügbaren Sitzplätze mehr in dieser Fahrt.");
+            }
+
+
+            ride.setAvailableSeats(ride.getAvailableSeats() - 1);
+            rideRepo.save(ride);
+        }
+
         req.setStatus(newStatus);
-        return repo.save(req);
+        return requestRepo.save(req);
     }
 
     @Override
     public List<RideRequest> getOpenRequestsForDriver(User driver) {
-        return repo.findByRideDriverAndStatus(driver, RequestStatus.PENDING);
+        return requestRepo.findByRideDriverAndStatus(driver, RequestStatus.PENDING);
     }
 
     @Override
     public List<RideRequest> getRequestsForPassenger(User passenger) {
-        return repo.findByPassenger(passenger);
-    }
-    @Override
-    public boolean existsByRideAndPassenger(Ride ride, User passenger) {
-        return repo.existsByRideAndPassenger(ride, passenger);
+        return requestRepo.findByPassenger(passenger);
     }
 
+    @Override
+    public boolean existsByRideAndPassenger(Ride ride, User passenger) {
+        return requestRepo.existsByRideAndPassenger(ride, passenger);
+    }
 }

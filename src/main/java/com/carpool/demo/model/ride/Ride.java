@@ -23,7 +23,7 @@ public class Ride {
     private String destination;
 
     @JsonProperty("departure_time")
-    @Column(nullable = false)
+    @Column(name = "departure_time", nullable = false)
     private LocalDateTime departureTime;
 
     @JsonProperty("seats_available")

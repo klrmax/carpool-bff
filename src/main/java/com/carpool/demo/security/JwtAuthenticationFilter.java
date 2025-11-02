@@ -1,5 +1,6 @@
 package com.carpool.demo.security;
 
+import com.carpool.demo.utils.AuthUtils;
 import com.carpool.demo.utils.JwtUtils;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
@@ -10,9 +11,11 @@ import java.io.IOException;
 public class JwtAuthenticationFilter implements Filter {
 
     private final JwtUtils jwtUtils;
+    private final AuthUtils authUtils;
 
-    public JwtAuthenticationFilter(JwtUtils jwtUtils) {
+    public JwtAuthenticationFilter(JwtUtils jwtUtils, AuthUtils authUtils) {
         this.jwtUtils = jwtUtils;
+        this.authUtils = authUtils;
     }
 
     @Override
@@ -33,10 +36,21 @@ public class JwtAuthenticationFilter implements Filter {
         if (isPublicEndpoint) {
             // Öffentlicher Endpunkt ohne token erlaubt
             chain.doFilter(request, response);
-        } else if (authHeader != null && jwtUtils.validateToken(authHeader)) {
-            chain.doFilter(request, response);
+        } else if (authHeader != null) {
+            try {
+                String token = authUtils.extractToken(authHeader);
+                if (jwtUtils.validateToken(token)) {
+                    chain.doFilter(request, response);
+                } else {
+                    throw new ServletException("Invalid token");
+                }
+            } catch (Exception e) {
+                HttpServletResponse httpResponse = (HttpServletResponse) response;
+                httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                httpResponse.getWriter().write("{\"error\": \"Unauthorized: " + e.getMessage() + "\"}");
+            }
         } else {
-            // Geschützter Endpunkt ohne gültigen Token
+            // Geschützter Endpunkt ohne Auth-Header
             HttpServletResponse httpResponse = (HttpServletResponse) response;
             httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             httpResponse.getWriter().write("{\"error\": \"Unauthorized or invalid token\"}");
