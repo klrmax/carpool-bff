@@ -30,9 +30,8 @@ public class JwtAuthenticationFilter implements Filter {
                 requestUri.startsWith("/api/users/login") ||
                 requestUri.startsWith("/api/users/register") ||
                 requestUri.startsWith("/api/ride/search") ||
-                requestUri.startsWith("/api/ride/search-async") ||
                 requestUri.equals("/api/ride") ||
-                requestUri.startsWith("/api/trains");
+                requestUri.startsWith("/api/trains/");
 
         if (isPublicEndpoint) {
             // Öffentlicher Endpunkt ohne token erlaubt

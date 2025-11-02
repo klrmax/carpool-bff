@@ -4,13 +4,11 @@ package com.carpool.demo.graphql;
 
 import com.carpool.demo.data.api.TrainManager;
 import com.carpool.demo.model.train.TrainConnection;
-import com.carpool.demo.utils.AuthUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.graphql.data.method.annotation.ContextValue;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDateTime;
@@ -22,12 +20,10 @@ import java.util.List;
 public class TrainGraphQLController {
 
     private final TrainManager trainManager;
-    private final AuthUtils authUtils;
 
     @Autowired
-    public TrainGraphQLController(TrainManager trainManager, AuthUtils authUtils) {
+    public TrainGraphQLController(TrainManager trainManager) {
         this.trainManager = trainManager;
-        this.authUtils = authUtils;
     }
 
     @QueryMapping
@@ -35,16 +31,9 @@ public class TrainGraphQLController {
             @Argument String from,
             @Argument String to,
             @Argument String date,
-            @Argument String hour,
-            @ContextValue(name = "Authorization") String authHeader // 🔒 Token aus Header holen
+            @Argument String hour
     ) {
-        // Tokenprüfung
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new RuntimeException("Unauthorized: Kein oder ungültiger Token");
-        }
-
-        String token = authHeader.substring(7);
-        authUtils.getUserFromToken(token); // validiert und wirft Exception bei ungültigem Token
+        // ÖFFENTLICH - kein Token erforderlich (wie REST /api/trains)
 
         //  Falls kein Datum/Zeit angegeben → jetzt
         LocalDateTime now = LocalDateTime.now();

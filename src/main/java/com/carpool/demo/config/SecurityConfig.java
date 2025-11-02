@@ -16,13 +16,13 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
 
-    // ✅ Passwort-Encoder (wird auch für GraphQL verwendet)
+    // Passwort-Encoder (wird auch für GraphQL verwendet)
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // ✅ Filter nur für REST-Endpunkte
+    // Filter nur für REST-Endpunkte
     @Bean
     public FilterRegistrationBean<JwtAuthenticationFilter> jwtFilter(JwtAuthenticationFilter filter) {
         FilterRegistrationBean<JwtAuthenticationFilter> registrationBean = new FilterRegistrationBean<>();
@@ -64,7 +64,7 @@ public class SecurityConfig {
     }
 
 
-    // ✅ CORS für REST + GraphQL (kombiniert)
+    // CORS für REST + GraphQL (kombiniert)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
