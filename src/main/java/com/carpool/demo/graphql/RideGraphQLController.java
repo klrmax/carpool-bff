@@ -121,7 +121,7 @@ public class RideGraphQLController {
 
         LocalDateTime now = LocalDateTime.now();
 
-        // 🔹 Filter: Nur Fahrten mit freien Plätzen UND in der Zukunft
+        // Filter: Nur Fahrten mit freien Plätzen UND in der Zukunft
         List<Ride> filtered = rides.stream()
                 .filter(ride -> ride.getAvailableSeats() > 0)
                 .filter(ride -> ride.getDepartureTime() != null && ride.getDepartureTime().isAfter(now))

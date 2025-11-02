@@ -26,7 +26,7 @@ public class AuthUtils {
             throw new IllegalArgumentException("Missing Authorization header");
         }
 
-        System.out.println("🔹 Raw Authorization header: '" + authHeader + "'");
+        System.out.println("Raw Authorization header: '" + authHeader + "'");
 
         // Entferne "Bearer" (egal ob groß/klein, mit/ohne Leerzeichen)
         String token = authHeader.replaceFirst("(?i)^Bearer\\s*", "");
@@ -34,7 +34,7 @@ public class AuthUtils {
         // Entferne ALLE Zeichen, die nicht in Base64URL erlaubt sind (plus Punkt)
         token = token.replaceAll("[^A-Za-z0-9_\\.-]", "");
 
-        System.out.println("🔹 Cleaned token: [" + token + "]");
+        System.out.println("Cleaned token: [" + token + "]");
         return token;
     }
 

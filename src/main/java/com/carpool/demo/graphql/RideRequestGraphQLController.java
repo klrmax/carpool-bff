@@ -36,7 +36,7 @@ public class RideRequestGraphQLController {
         this.authUtils = authUtils;
     }
 
-    // 🔹 Mutation: Mitfahranfrage erstellen
+    // Mutation: Mitfahranfrage erstellen
     @MutationMapping
     public RideRequest createRideRequest(
             @Argument Integer rideId,
@@ -63,7 +63,7 @@ public class RideRequestGraphQLController {
         return rideRequestManager.createRequest(passenger, ride, message);
     }
 
-    // 🔹 Query: Eigene Mitfahranfragen (als Passenger)
+    // Query: Eigene Mitfahranfragen (als Passenger)
     @QueryMapping
     public List<RideRequest> getRideRequests(GraphQLContext context) {
         String token = context.get("Authorization");
@@ -74,7 +74,7 @@ public class RideRequestGraphQLController {
         return rideRequestManager.getRequestsForPassenger(user);
     }
 
-    // 🔹 Query: Offene Anfragen für eigene Fahrten (als Driver)
+    // Query: Offene Anfragen für eigene Fahrten (als Driver)
     @QueryMapping
     public List<RideRequest> getOpenRideRequests(GraphQLContext context) {
         String token = context.get("Authorization");
@@ -85,7 +85,7 @@ public class RideRequestGraphQLController {
         return rideRequestManager.getOpenRequestsForDriver(user);
     }
 
-    // 🔹 Mutation: Status einer Mitfahranfrage ändern (nur Fahrer)
+    // Mutation: Status einer Mitfahranfrage ändern (nur Fahrer)
     @MutationMapping
     public RideRequest changeRideRequestStatus(
             @Argument Long requestId,

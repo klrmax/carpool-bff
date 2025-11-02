@@ -15,13 +15,13 @@ public class CorsConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // Gilt für alle Routen, inkl. /api/** und /graphql
                         .allowedOrigins(
-                                // 🔹 Lokale Entwicklungs-URLs
+                                // Lokale Entwicklungs-URLs
                                 "http://localhost:3000",
                                 "http://127.0.0.1:3000",
                                 "http://localhost:4200",
                                 "http://127.0.0.1:5501",
                                 "http://localhost:5501",
-                                // 🔹 Deploy-URLs (Heroku oder SPA)
+                                // Deploy-URLs (Heroku oder SPA)
                                 "https://carpoolbff-c576f25b03e8.herokuapp.com",
                                 "https://carpool-spa-dc2811d7ff92.herokuapp.com"
                         )

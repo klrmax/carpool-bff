@@ -34,11 +34,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // 🔹 CORS aktivieren (siehe Bean unten)
+                // CORS aktivieren (siehe Bean unten)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                // 🔹 CSRF deaktivieren (für APIs & GraphQL nicht notwendig)
+                // CSRF deaktivieren (für APIs & GraphQL nicht notwendig)
                 .csrf(csrf -> csrf.disable())
-                // 🔹 Zugriff regeln
+                // Zugriff regeln
                 .authorizeHttpRequests(auth -> auth
                         // --- Öffentlich zugängliche REST-Endpunkte ---
                         .requestMatchers(
@@ -56,7 +56,7 @@ public class SecurityConfig {
                         // --- Alles andere zunächst offen lassen (kann später .authenticated() werden) ---
                         .anyRequest().permitAll()
                 )
-                // 🔹 Kein Standard-Login-Formular oder HTTP Basic Auth
+                // Kein Standard-Login-Formular oder HTTP Basic Auth
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .formLogin(form -> form.disable());
 

@@ -156,7 +156,7 @@ public class RideRequestController {
             User passenger = userCache.getUserById(passengerId);
             List<RideRequest> requests = manager.getRequestsForPassenger(passenger);
 
-            // 🔧 Mappe in ein sauberes JSON-Response-Format
+            // Mappe in ein sauberes JSON-Response-Format
             List<Map<String, Object>> result = requests.stream().map(req -> {
                 Map<String, Object> rideData = new HashMap<>();
                 Ride ride = req.getRide();
