@@ -1,13 +1,19 @@
 package com.carpool.demo.data.repository;
 import com.carpool.demo.model.ride.Ride;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RideRepository extends JpaRepository<Ride, Integer> {
+
+    @Query("SELECT r FROM Ride r LEFT JOIN FETCH r.driver where r.id= :id")
+    Optional<Ride> findByIdWithDriver(@Param("id") int id);
 
     // Suche nach Start- und Zielort (Groß-/Kleinschreibung egal)
     List<Ride> findByStartLocationContainingIgnoreCaseAndDestinationContainingIgnoreCase(

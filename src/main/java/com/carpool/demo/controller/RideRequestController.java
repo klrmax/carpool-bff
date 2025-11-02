@@ -62,6 +62,12 @@ public class RideRequestController {
             Ride ride = rideRepo.findById(rideId)
                     .orElseThrow(() -> new IllegalArgumentException("Fahrt mit ID " + rideId + " wurde nicht gefunden"));
 
+            //Null-Check für Driver
+            if (ride.getDriver() == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("error", "Fahrt hat keinen Fahrer zugewiesen"));
+            }
+
             // Fahrer darf sich nicht selbst als Mitfahrer hinzufügen
             if (ride.getDriver().getUserid() == passenger.getUserid()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
