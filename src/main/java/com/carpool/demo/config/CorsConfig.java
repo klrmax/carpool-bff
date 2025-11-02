@@ -25,10 +25,10 @@ public class CorsConfig {
                                 "https://carpoolbff-c576f25b03e8.herokuapp.com",
                                 "https://carpool-spa-dc2811d7ff92.herokuapp.com"
                         )
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                         .allowedHeaders("*")
                         .allowCredentials(false);
-                        // TODO: Frontend URL hier einfügen wenn deployed
+
             }
         };
     }
