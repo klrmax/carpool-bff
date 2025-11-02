@@ -1,4 +1,4 @@
-hashmappackage com.carpool.demo.config;
+package com.carpool.demo.config;
 
 import com.carpool.demo.data.api.NotificationQueueManager;
 import org.springframework.beans.factory.annotation.Autowired;
