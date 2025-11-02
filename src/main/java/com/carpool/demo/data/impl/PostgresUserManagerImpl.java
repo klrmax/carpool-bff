@@ -43,14 +43,14 @@ public class PostgresUserManagerImpl implements UserManager {
         User user = userRepository.findByMobileNumber(mobileNumber);
 
         if (user == null) {
-            System.out.println("❌ Benutzer nicht gefunden!");
+            System.out.println("Benutzer nicht gefunden!");
             throw new GraphQLRequestException(
                     "Benutzer wurde nicht gefunden",
                     ErrorType.NOT_FOUND
             );
         }
 
-        System.out.println("✅ Benutzer gefunden: " + user.getName());
+        System.out.println("Benutzer gefunden: " + user.getName());
 
         // Passwortprüfung mit BCrypt
         if (!passwordEncoder.matches(password, user.getPassword())) {
@@ -62,7 +62,7 @@ public class PostgresUserManagerImpl implements UserManager {
 
         // JWT generieren (optional: wird im Controller verwendet)
         String token = jwtUtils.generateToken(user.getName(), user.getUserid());
-        System.out.println("🔑 Generated JWT: " + token);
+        System.out.println("Generated JWT: " + token);
 
         return user;
     }

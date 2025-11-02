@@ -28,7 +28,7 @@ public class RideGraphQLController {
         this.authUtils = authUtils;
     }
 
-    // Mutation: Fahrt erstellen
+    // Mutation: Fahrt erstellen (GESCHÜTZT - Token erforderlich!)
     @MutationMapping
     public Ride createRide(
             @Argument String startLocation,
@@ -37,7 +37,7 @@ public class RideGraphQLController {
             @Argument Integer availableSeats,
             GraphQLContext context
     ) {
-        // Token validieren
+        // Token validieren (IMMER erforderlich für createRide!)
         String token = context.get("Authorization");
         User user = authUtils.getUserFromToken(token);
         if (user == null) {
@@ -83,30 +83,21 @@ public class RideGraphQLController {
         }
     }
 
-    // Query: Alle Fahrten abrufen (nur mit Token)
+    // Query: Alle Fahrten abrufen (ÖFFENTLICH - kein Token nötig!)
     @QueryMapping
     public List<Ride> getAllRides(GraphQLContext context) {
-        String token = context.get("Authorization");
-        if (token == null) {
-            throw new GraphQLRequestException("Nicht autorisiert: Ungültiges oder fehlendes Token", ErrorType.UNAUTHORIZED);
-        }
-
-        authUtils.getUserFromToken(token);
+        // Öffentlich - kein Token erforderlich (wie REST /api/ride)
         return rideManager.getAllRides();
     }
 
-    // Query: Fahrt per ID abrufen (nur mit Token)
+    // Query: Fahrt per ID abrufen (ÖFFENTLICH - kein Token nötig!)
     @QueryMapping
     public Ride getRideById(@Argument Integer id, GraphQLContext context) {
-        String token = context.get("Authorization");
-        if (token == null) {
-            throw new GraphQLRequestException("Nicht autorisiert: Ungültiges oder fehlendes Token", ErrorType.UNAUTHORIZED);        }
-
-        authUtils.getUserFromToken(token);
+        // Öffentlich - kein Token erforderlich
         return rideManager.getRideById(id);
     }
 
-    // Query: Fahrten suchen (nur mit Token)
+    // Query: Fahrten suchen (ÖFFENTLICH - kein Token nötig!)
     @QueryMapping
     public List<Ride> searchRides(
             @Argument String start,
@@ -115,12 +106,8 @@ public class RideGraphQLController {
             @Argument String time,
             GraphQLContext context
     ) {
-        String token = context.get("Authorization");
-        if (token == null || token.isBlank()) {
-            throw new GraphQLRequestException("Nicht autorisiert: Ungültiges oder fehlendes Token", ErrorType.UNAUTHORIZED);        }
-
-        authUtils.getUserFromToken(token); // Token prüfen
-
+        // Öffentlich - kein Token erforderlich (wie REST /api/ride/search)
+        
         if ((start == null || start.isBlank()) && (destination == null || destination.isBlank())) {
             throw new GraphQLRequestException("Bitte Start- oder Zielort angeben", ErrorType.BAD_REQUEST);
         }

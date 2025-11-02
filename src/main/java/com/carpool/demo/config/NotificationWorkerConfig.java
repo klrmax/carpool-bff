@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 public class NotificationWorkerConfig {
 
     @Autowired
-    private NotificationQueueManager notificationQueue;  // ← Interface!
+    private NotificationQueueManager notificationQueue;  // 
 
     private static final Logger logger = Logger.getLogger("NotificationWorker");
 
