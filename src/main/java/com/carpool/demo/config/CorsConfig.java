@@ -21,9 +21,10 @@ public class CorsConfig {
                                 "http://localhost:4200",
                                 "http://127.0.0.1:5501",
                                 "http://localhost:5501",
-                                // Deploy-URLs (Heroku oder SPA)
+                                // Deploy-URLs (Backend, SPA, MPA)
                                 "https://carpoolbff-c576f25b03e8.herokuapp.com",
-                                "https://carpool-spa-dc2811d7ff92.herokuapp.com"
+                                "https://carpool-spa-dc2811d7ff92.herokuapp.com",
+                                "https://carpool-mpa-b2ab41ee1e9d.herokuapp.com"
                         )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                         .allowedHeaders("*")
