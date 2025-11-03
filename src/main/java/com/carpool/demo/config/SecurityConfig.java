@@ -10,6 +10,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
@@ -29,6 +31,17 @@ public class SecurityConfig {
         registrationBean.setFilter(filter);
         registrationBean.addUrlPatterns("/api/*"); // GraphQL nutzt stattdessen GraphQLContext
         return registrationBean;
+    }
+
+    // Rate Limiting Interceptor registrieren
+    @Bean
+    public WebMvcConfigurer webMvcConfigurer(RateLimitInterceptor rateLimitInterceptor) {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addInterceptors(InterceptorRegistry registry) {
+                registry.addInterceptor(rateLimitInterceptor);
+            }
+        };
     }
 
     @Bean
