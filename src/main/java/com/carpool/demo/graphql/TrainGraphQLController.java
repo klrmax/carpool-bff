@@ -35,16 +35,17 @@ public class TrainGraphQLController {
     ) {
         // ÖFFENTLICH - kein Token erforderlich (wie REST /api/trains)
 
-        //  Falls kein Datum/Zeit angegeben → jetzt
+        // Falls kein Datum/Zeit angegeben → jetzt
         LocalDateTime now = LocalDateTime.now();
         if (date == null || date.isEmpty()) {
-            date = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+            // Format: YYYY-MM-DD (wird später in convertToDBDateFormat konvertiert)
+            date = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         }
         if (hour == null || hour.isEmpty()) {
             hour = now.format(DateTimeFormatter.ofPattern("HH"));
         }
 
-        //  Auto-Korrektur für häufige Bahnhofsnamen
+        // Auto-Korrektur für häufige Bahnhofsnamen
         from = normalizeStationName(from);
         to = normalizeStationName(to);
 
