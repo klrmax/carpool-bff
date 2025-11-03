@@ -45,17 +45,6 @@ public class SecurityConfig implements WebMvcConfigurer {
         return registrationBean;
     }
 
-    // Rate Limiting Interceptor registrieren
-    @Bean
-    public WebMvcConfigurer webMvcConfigurer(RateLimitInterceptor rateLimitInterceptor) {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addInterceptors(InterceptorRegistry registry) {
-                registry.addInterceptor(rateLimitInterceptor);
-            }
-        };
-    }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
