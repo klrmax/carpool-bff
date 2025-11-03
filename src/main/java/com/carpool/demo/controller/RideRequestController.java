@@ -83,6 +83,11 @@ public class RideRequestController {
 
             // Anfrage erstellen
             RideRequest request = manager.createRequest(passenger, ride, message);
+            
+            // Debug-Ausgabe
+            System.out.println("DEBUG: RideRequest created with status: " + request.getStatus());
+            System.out.println("DEBUG: RideRequest ID: " + request.getId());
+            
             return ResponseEntity.status(HttpStatus.CREATED).body(request);
 
         } catch (IllegalArgumentException e) {

@@ -31,7 +31,12 @@ public class RideRequestManagerImpl implements RideRequestManager {
         req.setRide(ride);
         req.setMessage(message);
         req.setStatus(RequestStatus.PENDING);
-        return requestRepo.save(req);
+        
+        System.out.println("DEBUG Manager BEFORE save: Status = " + req.getStatus());
+        RideRequest saved = requestRepo.save(req);
+        System.out.println("DEBUG Manager AFTER save: Status = " + saved.getStatus());
+        
+        return saved;
     }
 
     @Override
